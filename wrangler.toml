@@ -9,7 +9,7 @@ assets = { directory = "./public" }
 [[d1_databases]]
 binding = "DB"
 database_name = "archive-flo-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "b94dec7f-2904-4ac6-bb66-cb066d991c96"
 
 # Secrets — set via: wrangler secret put SECRET_NAME
 # DISCORD_BOT_TOKEN
