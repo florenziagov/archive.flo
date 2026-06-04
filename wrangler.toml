@@ -1,0 +1,23 @@
+name = "archive-flo"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Serve the dashboard HTML as a static asset
+assets = { directory = "./public" }
+
+[[d1_databases]]
+binding = "DB"
+database_name = "archive-flo-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Secrets — set via: wrangler secret put SECRET_NAME
+# DISCORD_BOT_TOKEN
+# DISCORD_PUBLIC_KEY
+# DISCORD_APP_ID
+# OPENROUTER_API_KEY
+# API_KEY              (for dashboard auth)
+# SETUP_SECRET         (for /setup-commands one-time route)
+
+[vars]
+AI_MODEL = "anthropic/claude-3-haiku"
