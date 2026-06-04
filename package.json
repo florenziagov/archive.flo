@@ -1,0 +1,18 @@
+{
+  "name": "archive-flo",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create archive-flo-db",
+    "db:migrate": "wrangler d1 execute archive-flo-db --file=schema.sql",
+    "db:migrate:remote": "wrangler d1 execute archive-flo-db --remote --file=schema.sql"
+  },
+  "dependencies": {
+    "discord-interactions": "^3.4.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.57.0"
+  }
+}
