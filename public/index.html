@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archive.FLO — Government of Florenzia</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f3f2f1;
+    --bg3: #e5e5e5;
+    --panel: #ffffff;
+    --border: #b1b4b6;
+    --border2: #d8dde0;
+    --accent: #1d70b8;
+    --accent2: #144e81;
+    --accent3: #2b8cc4;
+    --red: #d4351c;
+    --yellow: #ffdd00;
+    --green: #00703c;
+    --muted: #505a5f;
+    --text: #0b0c0c;
+    --text2: #505a5f;
+    --text3: #6f777b;
+    --focus: #ffdd00;
+    --body: Arial, Helvetica, sans-serif;
+    --head: Arial, Helvetica, sans-serif;
+    --mono: "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--body); font-size: 16px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  body::before { display:none; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-track { background: var(--bg2); } ::-webkit-scrollbar-thumb { background: var(--border); }
+  button { cursor: pointer; font-family: var(--body); border: none; }
+  input, textarea, select { font-family: var(--body); font-size: 16px; }
+  .mono { font-family: var(--mono); }
+
+  #app { display: flex; height: 100vh; overflow: hidden; background: var(--bg); }
+
+  /* Login */
+  #login { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg2); z-index: 100; padding: 24px; }
+  #login .grid-bg { display:none; }
+  #login .box { background: var(--panel); border-top: 10px solid var(--text); padding: 34px; width: min(440px, 100%); box-shadow: 0 2px 0 rgba(11,12,12,0.15); }
+  #login .box::before { display:none; }
+  #login h1 { font-family: var(--head); font-size: 30px; font-weight: 700; color: var(--text); letter-spacing: 0; text-align: left; line-height: 1.1; }
+  #login .dot, #login .flo { color: var(--text); }
+  #login .sub { font-size: 16px; color: var(--text2); text-align: left; margin-top: 8px; letter-spacing: 0; }
+  #login hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  #login label { font-size: 16px; color: var(--text); font-weight: 700; display: block; margin-bottom: 8px; letter-spacing: 0; }
+  #login input { width: 100%; padding: 10px; background: var(--bg); border: 2px solid var(--text); color: var(--text); outline: none; border-radius: 0; }
+  #login input:focus, .toolbar input:focus, .toolbar select:focus, .chat-input-area input:focus, .chat-context select:focus { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: inset 0 0 0 2px var(--text); }
+  #login .err { margin-top: 10px; font-size: 16px; color: var(--red); font-weight: 700; }
+  #login .btn { width: auto; margin-top: 18px; padding: 10px 18px; background: var(--green); color: white; font-size: 18px; font-weight: 700; border-radius: 0; box-shadow: 0 2px 0 #003618; letter-spacing: 0; }
+  #login .btn:hover { background:#005a30; }
+  #login .legal { margin-top: 22px; font-size: 14px; color: var(--text2); text-align: left; line-height: 1.5; border-top: 1px solid var(--border2); padding-top: 16px; }
+
+  /* Sidebar */
+  #sidebar { width: 260px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  #sidebar .logo { padding: 22px 20px 18px; border-bottom: 1px solid var(--border); background: var(--text); color: white; }
+  #sidebar .logo .name { font-size: 24px; font-weight: 700; color: white; letter-spacing: 0; }
+  #sidebar .logo .dot, #sidebar .logo .flo { color: white; }
+  #sidebar .logo .sub { font-size: 14px; color: #d8dde0; margin-top: 4px; letter-spacing: 0; }
+  #sidebar .status { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid var(--border); font-size: 14px; color: var(--green); font-weight: 700; }
+  #sidebar nav { flex: 1; padding: 12px 0; }
+  #sidebar nav button { display: block; width: 100%; padding: 13px 20px; margin: 0; background: transparent; border-left: 5px solid transparent; color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: 0; text-align: left; }
+  #sidebar nav button:hover { background: #ffffff; color: var(--accent); }
+  #sidebar nav button.active { background: #ffffff; border-left-color: var(--accent); color: var(--text); }
+  #sidebar .clock { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  #main { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: var(--bg); }
+  .page-header { padding: 28px 34px 20px; border-bottom: 1px solid var(--border); background: var(--panel); flex-shrink: 0; }
+  .page-header h2 { font-size: 30px; font-weight: 700; letter-spacing: 0; line-height: 1.15; }
+  .page-header .sub { font-size: 16px; color: var(--text2); margin-top: 6px; letter-spacing: 0; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 28px 34px; flex-shrink: 0; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-top: 5px solid var(--c, var(--accent)); padding: 18px 20px; position: relative; overflow: hidden; }
+  .stat-card::before { display:none; }
+  .stat-card .label { font-size: 16px; color: var(--text); font-weight: 700; letter-spacing: 0; margin-bottom: 8px; }
+  .stat-card .value { font-size: 38px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-card .meta { font-size: 14px; color: var(--text2); margin-top: 8px; }
+
+  .table-wrap { overflow: auto; flex: 1; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { position: sticky; top: 0; background: var(--bg2); padding: 12px 18px; text-align: left; font-size: 15px; color: var(--text); font-weight: 700; letter-spacing: 0; border-bottom: 2px solid var(--text); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border2); transition: background 0.1s; cursor: pointer; }
+  tbody tr:hover { background: #f8f8f8; }
+  tbody td { padding: 12px 18px; font-size: 15px; vertical-align: top; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 0; font-size: 14px; font-weight: 700; }
+  .tag { background: var(--bg2); border: 1px solid var(--border); color: var(--text); }
+
+  .msg-list { flex: 1; overflow: auto; background: var(--panel); }
+  .msg-row { padding: 16px 24px; border-bottom: 1px solid var(--border2); display: flex; gap: 14px; transition: background 0.1s; }
+  .msg-row:hover { background: #f8f8f8; }
+  .msg-avatar { width: 38px; height: 38px; border-radius: 0; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; margin-top: 2px; }
+  .msg-body { flex: 1; min-width: 0; }
+  .msg-meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; flex-wrap: wrap; }
+  .msg-author { font-size: 16px; font-weight: 700; color: var(--text); }
+  .msg-channel { font-size: 14px; color: var(--accent); font-weight: 700; }
+  .msg-time { font-size: 13px; color: var(--text2); }
+  .msg-content { font-size: 16px; color: var(--text); line-height: 1.55; word-break: break-word; }
+  .msg-images { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .msg-images img { max-height: 90px; max-width: 140px; object-fit: cover; border: 1px solid var(--border); border-radius: 0; cursor: pointer; }
+  .msg-reactions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .reaction { font-size: 14px; padding: 3px 8px; background: var(--bg2); border: 1px solid var(--border); border-radius: 0; color: var(--text2); cursor: default; }
+
+  .toolbar { padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--bg2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+  .toolbar input, .toolbar select { padding: 9px 10px; background: var(--panel); border: 2px solid var(--text); color: var(--text); outline: none; border-radius: 0; }
+  .toolbar input { flex: 1; min-width: 180px; }
+  .toolbar button, .chat-input-area .send { padding: 10px 16px; background: var(--accent); color: white; font-size: 16px; font-weight: 700; border-radius: 0; box-shadow: 0 2px 0 #003078; }
+  .toolbar button:hover, .chat-input-area .send:hover { background: var(--accent2); }
+  .toolbar .clear-btn { background: var(--panel); border: 2px solid var(--text); color: var(--text); box-shadow: none; }
+
+  .chat-wrap { display: flex; flex-direction: column; height: 100%; }
+  .chat-context { padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--bg2); display: flex; gap: 10px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+  .chat-context label { font-size: 16px; color: var(--text); font-weight: 700; }
+  .chat-context select { padding: 8px 10px; background: var(--panel); border: 2px solid var(--text); color: var(--text); border-radius: 0; font-size: 16px; }
+  .chat-msgs { flex: 1; overflow: auto; padding: 22px 28px; background: var(--panel); }
+  .chat-msg { margin-bottom: 18px; }
+  .chat-msg.system .bubble { font-size: 15px; color: var(--text2); border-left: 5px solid var(--accent); padding: 14px 16px; background: var(--bg2); white-space: pre-line; }
+  .chat-msg.user { display: flex; justify-content: flex-end; }
+  .chat-msg.user .bubble { max-width: 72%; background: var(--accent); color: white; padding: 12px 16px; border-radius: 0; }
+  .chat-msg.user .bubble .role { font-size: 13px; color: white; opacity: 0.85; margin-bottom: 4px; font-weight: 700; }
+  .chat-msg.user .bubble .text { font-size: 16px; color: white; }
+  .chat-msg.ai .bubble { background: var(--bg2); border: 1px solid var(--border); padding: 16px 18px; position: relative; overflow: hidden; }
+  .chat-msg.ai .bubble::before { display:none; }
+  .chat-msg.ai .role { font-size: 13px; color: var(--text2); margin-bottom: 8px; display: flex; justify-content: space-between; font-weight: 700; }
+  .chat-msg.ai .text { font-size: 16px; color: var(--text); line-height: 1.65; white-space: pre-wrap; }
+  .chat-msg.error .bubble { border: 2px solid var(--red); color: var(--red); padding: 12px 16px; font-size: 15px; font-weight: 700; }
+  .chat-presets { padding: 12px 24px; border-top: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; }
+  .chat-presets .plabel { font-size: 14px; color: var(--text); font-weight: 700; letter-spacing: 0; margin-bottom: 8px; }
+  .chat-presets .plist { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chat-presets .pbtn { padding: 6px 10px; background: var(--panel); border: 1px solid var(--border); color: var(--accent); font-size: 14px; border-radius: 0; text-decoration: underline; }
+  .chat-input-area { padding: 14px 24px; border-top: 1px solid var(--border); background: var(--bg2); flex-shrink: 0; display: flex; gap: 10px; }
+  .chat-input-area input { flex: 1; padding: 10px; background: var(--panel); border: 2px solid var(--text); color: var(--text); outline: none; border-radius: 0; }
+
+  .pager { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; flex-shrink: 0; background: var(--bg2); }
+  .pager button { padding: 8px 12px; background: var(--panel); border: 2px solid var(--text); color: var(--text); font-size: 15px; border-radius: 0; font-weight: 700; }
+  .pager button:disabled { opacity: 0.4; cursor: default; }
+  .pager span { font-size: 14px; color: var(--text2); }
+
+  .loading { padding: 30px; font-size: 15px; color: var(--text2); text-align: center; }
+  .empty { padding: 60px; text-align: center; font-size: 15px; color: var(--text2); }
+  .dot-pulse span { display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin: 0 2px; animation: dp 1.2s ease-in-out infinite; }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dp { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+  .hidden { display: none !important; }
+
+  .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 46px; }
+  .sparkline .bar { flex: 1; background: var(--accent); border-radius: 0; min-height: 2px; opacity: 0.9; transition: opacity 0.1s; }
+  .sparkline .bar:hover { opacity: 1; }
+
+  @media (max-width: 900px) {
+    #app { flex-direction: column; }
+    #sidebar { width: 100%; height: auto; }
+    #sidebar nav { display:flex; overflow:auto; padding:0; }
+    #sidebar nav button { min-width: max-content; border-left:0; border-bottom:5px solid transparent; }
+    #sidebar nav button.active { border-bottom-color: var(--accent); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login">
+  <div class="grid-bg"></div>
+  <div class="box">
+    <h1>ARCHIVE<span class="dot">.</span><span class="flo">FLO</span></h1>
+    <div class="sub">Government of Florenzia — Archive service</div>
+    <hr>
+    <label>Access key</label>
+    <input type="password" id="keyInput" placeholder="Enter access key" autocomplete="current-password">
+    <div class="err hidden" id="loginErr">There is a problem — the access key was not recognised</div>
+    <button class="btn" id="loginBtn">Sign in</button>
+    <div class="legal">Official government archive service<br>Use is recorded for security and audit purposes</div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div class="logo">
+      <div class="name">ARCHIVE<span class="dot">.</span><span class="flo">FLO</span></div>
+      <div class="sub">Government of Florenzia</div>
+    </div>
+    <div class="status">Service available</div>
+    <nav>
+      <button class="active" data-view="overview">Overview</button>
+      <button data-view="channels">Channels</button>
+      <button data-view="users">Users</button>
+      <button data-view="messages">Messages</button>
+      <button data-view="query">Analysis</button>
+    </nav>
+    <div class="clock" id="clock"></div>
+  </aside>
+
+  <div id="main">
+    <!-- OVERView -->
+    <div id="view-overview" class="view" style="overflow:auto;height:100%">
+      <div class="page-header">
+        <h2>Archive overview</h2>
+        <div class="sub">Archive.FLO dashboard for archived Discord records</div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div style="padding: 0 28px 28px; display:grid; grid-template-columns:2fr 1fr; gap:16px;">
+        <div style="background:var(--bg2);border:1px solid var(--border2);padding:20px 24px;">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;margin-bottom:12px;">30-day archive activity</div>
+          <div id="activityChart" class="sparkline"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border2);padding:20px 24px;">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;margin-bottom:12px;">Most active channels</div>
+          <div id="topChannels"></div>
+        </div>
+      </div>
+      <div style="padding: 0 28px 28px;">
+        <div style="background:var(--bg2);border:1px solid var(--border2);padding:20px 24px;">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:0.1em;margin-bottom:12px;">Most active users</div>
+          <div id="topUsers" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNELS -->
+    <div id="view-channels" class="view hidden" style="display:flex;flex-direction:column;height:100%">
+      <div class="page-header">
+        <h2>Archived channels</h2>
+        <div class="sub">Use /log-channel in Discord to add channels. Cursors prevent duplicate records.</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>CHANNEL</th><th>Channel ID</th><th>MESSAGES</th><th>Last archived</th><th>CURSOR</th><th>Action</th>
+          </tr></thead>
+          <tbody id="channelTable"></tbody>
+        </table>
+        <div class="empty hidden" id="channelEmpty">No channels have been archived yet. Use /log-channel in Discord.</div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="view-users" class="view hidden" style="display:flex;flex-direction:column;height:100%">
+      <div class="page-header">
+        <h2>Archived users</h2>
+        <div class="sub">Use /log-user @user in Discord to archive visible messages from that user.</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>USER</th><th>User ID</th><th>MESSAGES</th><th>Active channels</th><th>Last archived</th><th>Action</th>
+          </tr></thead>
+          <tbody id="userTable"></tbody>
+        </table>
+        <div class="empty hidden" id="userEmpty">No users have been archived yet. Use /log-user in Discord.</div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="view-messages" class="view hidden" style="display:flex;flex-direction:column;height:100%">
+      <div class="page-header">
+        <h2>Message archive</h2>
+        <div class="sub" id="msgCount">Loading</div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="msgSearch" placeholder="Search message content">
+        <select id="msgChannel"><option value="">All channels</option></select>
+        <select id="msgUser"><option value="">All users</option></select>
+        <button id="msgSearchBtn">Search</button>
+        <button class="clear-btn" id="msgClearBtn">Clear</button>
+      </div>
+      <div class="msg-list" id="msgList"></div>
+      <div class="pager" id="msgPager"></div>
+    </div>
+
+    <!-- AI Ask -->
+    <div id="view-query" class="view hidden" style="height:100%">
+      <div class="chat-wrap">
+        <div class="page-header">
+          <h2>Archive analysis</h2>
+          <div class="sub">AI-assisted search and summaries. Queries may be recorded for audit purposes.</div>
+        </div>
+        <div class="chat-context">
+          <label>Scope:</label>
+          <select id="queryChannel"><option value="">All channels</option></select>
+          <select id="queryUser"><option value="">All users</option></select>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:8px;" id="queryScope"></span>
+        </div>
+        <div class="chat-msgs" id="chatMsgs">
+          <div class="chat-msg system"><div class="bubble">Archive.FLO analysis service available
+AI model connected via OpenRouter.
+Choose a channel or user above, or search the full archive.
+Queries may be recorded for audit purposes.</div></div>
+        </div>
+        <div class="chat-presets">
+          <div class="plabel">Suggested questions</div>
+          <div class="plist" id="presetList"></div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" id="queryInput" placeholder="Ask about the archive">
+          <button class="send" id="queryBtn">Ask</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const state = {
+  apiKey: localStorage.getItem('flo_key') || '',
+  view: 'overview',
+  stats: null,
+  channels: [],
+  users: [],
+  msgPage: 1,
+  msgTotal: 0,
+  msgFilter: { search: '', channel_id: '', user_id: '' },
+};
+
+// ─── API ─────────────────────────────────────────────────────────────────────
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(state.apiKey ? { 'Authorization': `Bearer ${state.apiKey}` } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (!res.ok) throw new Error(`${res.status}`);
+  return res.json();
+}
+
+// ─── Clock ───────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').innerHTML =
+    `${now.toISOString().slice(0, 10)}<br>${now.toTimeString().slice(0, 8)} UTC<br><span style="color:var(--text3);margin-top:4px;display:block;">Archive.FLO service</span>`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+async function tryLogin(key) {
+  state.apiKey = key;
+  try {
+    state.stats = await api('/api/stats');
+    localStorage.setItem('flo_key', key);
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    initApp();
+  } catch {
+    document.getElementById('loginErr').classList.remove('hidden');
+    state.apiKey = '';
+  }
+}
+
+document.getElementById('loginBtn').onclick = () => tryLogin(document.getElementById('keyInput').value);
+document.getElementById('keyInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(e.target.value); });
+
+if (state.apiKey) tryLogin(state.apiKey);
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+document.querySelectorAll('#sidebar nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.view;
+    switchView(v);
+  });
+});
+
+function switchView(v) {
+  state.view = v;
+  document.querySelectorAll('#sidebar nav button').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+  const el = document.getElementById(`view-${v}`);
+  if (el) el.classList.remove('hidden');
+  if (v === 'overview') renderOverview();
+  if (v === 'channels') loadChannels();
+  if (v === 'users') loadUsers();
+  if (v === 'messages') loadMessages();
+}
+
+// ─── Overview ─────────────────────────────────────────────────────────────────
+function renderOverview() {
+  const s = state.stats;
+  if (!s) return;
+
+  const defs = [
+    { label: 'Total messages', value: s.total?.toLocaleString() || 0, meta: 'Across all channels', c: 'var(--accent)' },
+    { label: 'Users archived', value: s.users?.toLocaleString() || 0, meta: 'Individual accounts', c: 'var(--accent3)' },
+    { label: 'Channels archived', value: s.channels?.toLocaleString() || 0, meta: 'Discord channels', c: 'var(--yellow)' },
+    { label: 'Archived today', value: s.today?.toLocaleString() || 0, meta: 'New records', c: 'var(--green)' },
+  ];
+  document.getElementById('statsGrid').innerHTML = defs.map(d => `
+    <div class="stat-card" style="--c:${d.c}">
+      <div class="label">${d.label}</div>
+      <div class="value">${d.value}</div>
+      <div class="meta">${d.meta}</div>
+    </div>`).join('');
+
+  // Sparkline
+  const act = s.activity || [];
+  const max = Math.max(...act.map(a => a.count), 1);
+  document.getElementById('activityChart').innerHTML = act.length
+    ? act.map(a => `<div class="bar" style="height:${Math.max(4, (a.count / max) * 100)}%" title="${a.date}: ${a.count}"></div>`).join('')
+    : '<div style="color:var(--text3);font-family:var(--mono);font-size:10px;">No data</div>';
+
+  // Top channels
+  document.getElementById('topChannels').innerHTML = (s.topChannels || []).slice(0, 6).map(c => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--accent2);width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">#${c.channel_name}</span>
+      <div style="flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;">
+        <div style="height:100%;background:var(--accent2);width:${Math.round((c.count/(s.topChannels[0]?.count||1))*100)}%;border-radius:2px;"></div>
+      </div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3);width:40px;text-align:right;">${c.count}</span>
+    </div>`).join('');
+
+  // Top users
+  document.getElementById('topUsers').innerHTML = (s.topUsers || []).map(u => `
+    <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);padding:7px 12px;border-radius:2px;cursor:pointer;"
+         onclick="filterMessages('','${u.user_id}')">
+      <div style="width:26px;height:26px;border-radius:50%;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:12px;font-weight:700;color:white;flex-shrink:0;">${(u.display_name||u.username||'?')[0].toUpperCase()}</div>
+      <span style="font-family:var(--head);font-size:13px;font-weight:600;">${u.display_name || u.username}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--accent);background:rgba(0,180,216,0.08);padding:1px 7px;border-radius:2px;">${u.count}</span>
+    </div>`).join('');
+}
+
+// ─── Channels ─────────────────────────────────────────────────────────────────
+async function loadChannels() {
+  document.getElementById('channelTable').innerHTML = '<tr><td colspan="6" class="loading">Loading</td></tr>';
+  try {
+    const rows = await api('/api/channels');
+    state.channels = rows;
+    populateChannelSelects(rows);
+    if (!rows.length) {
+      document.getElementById('channelTable').innerHTML = '';
+      document.getElementById('channelEmpty').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('channelTable').innerHTML = rows.map(r => `
+      <tr onclick="filterMessages('${r.channel_id}','')">
+        <td><span style="color:var(--accent2);font-family:var(--mono);">#${r.channel_name}</span></td>
+        <td><span class="mono" style="font-size:11px;color:var(--text3);">${r.channel_id}</span></td>
+        <td><span class="badge tag" id="cc-${r.channel_id}">–</span></td>
+        <td><span class="mono" style="font-size:11px;">${r.last_scraped?.slice(0,16).replace('T',' ')}</span></td>
+        <td><span class="mono" style="font-size:10px;color:var(--text3);">${r.last_message_id?.slice(-8)}</span></td>
+        <td><button onclick="event.stopPropagation();filterMessages('${r.channel_id}','')" style="padding:4px 10px;background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);color:var(--accent);font-size:11px;border-radius:2px;">View</button></td>
+      </tr>`).join('');
+
+    // Load message counts
+    for (const r of rows) {
+      api(`/api/messages?channel_id=${r.channel_id}&limit=1`).then(d => {
+        const el = document.getElementById(`cc-${r.channel_id}`);
+        if (el) el.textContent = d.total?.toLocaleString() || 0;
+      }).catch(() => {});
+    }
+  } catch (e) {
+    document.getElementById('channelTable').innerHTML = `<tr><td colspan="6" style="padding:20px;color:var(--red);font-family:var(--mono);font-size:11px;">Error: ${e.message}</td></tr>`;
+  }
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  document.getElementById('userTable').innerHTML = '<tr><td colspan="6" class="loading">Loading</td></tr>';
+  try {
+    const rows = await api('/api/users');
+    state.users = rows;
+    populateUserSelects(rows);
+    if (!rows.length) {
+      document.getElementById('userTable').innerHTML = '';
+      document.getElementById('userEmpty').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('userTable').innerHTML = rows.map(r => `
+      <tr onclick="filterMessages('','${r.user_id}')">
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:12px;font-weight:700;color:white;flex-shrink:0;">${(r.username||'?')[0].toUpperCase()}</div>
+            <span style="font-family:var(--head);font-size:13px;font-weight:600;">${r.username}</span>
+          </div>
+        </td>
+        <td><span class="mono" style="font-size:11px;color:var(--text3);">${r.user_id}</span></td>
+        <td><span class="badge tag">${r.total_messages?.toLocaleString() || 0}</span></td>
+        <td><span class="mono" style="font-size:11px;">${r.channels_active || 0}</span></td>
+        <td><span class="mono" style="font-size:11px;">${r.last_scraped?.slice(0,16).replace('T',' ')}</span></td>
+        <td><button onclick="event.stopPropagation();filterMessages('','${r.user_id}')" style="padding:4px 10px;background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);color:var(--accent);font-size:11px;border-radius:2px;">View</button></td>
+      </tr>`).join('');
+  } catch (e) {
+    document.getElementById('userTable').innerHTML = `<tr><td colspan="6" style="padding:20px;color:var(--red);font-family:var(--mono);font-size:11px;">Error: ${e.message}</td></tr>`;
+  }
+}
+
+// ─── Messages ─────────────────────────────────────────────────────────────────
+function filterMessages(channelId, userId) {
+  state.msgFilter = { search: '', channel_id: channelId, user_id: userId };
+  state.msgPage = 1;
+  switchView('messages');
+  document.getElementById('msgChannel').value = channelId;
+  document.getElementById('msgUser').value = userId;
+  loadMessages();
+}
+
+async function loadMessages() {
+  const list = document.getElementById('msgList');
+  list.innerHTML = '<div class="loading">Loading</div>';
+
+  const { search, channel_id, user_id } = state.msgFilter;
+  const page = state.msgPage;
+  const limit = 50;
+
+  try {
+    let data;
+    if (search) {
+      data = await api(`/api/search?q=${encodeURIComponent(search)}&channel_id=${channel_id}&user_id=${user_id}`);
+      data = { messages: data.results, total: data.results?.length || 0 };
+    } else {
+      const qs = new URLSearchParams({ page, limit, ...(channel_id ? { channel_id } : {}), ...(user_id ? { user_id } : {}) });
+      data = await api(`/api/messages?${qs}`);
+    }
+
+    state.msgTotal = data.total || 0;
+    document.getElementById('msgCount').textContent = `${state.msgTotal.toLocaleString()} records`;
+
+    if (!data.messages?.length) {
+      list.innerHTML = '<div class="empty">No messages found</div>';
+      document.getElementById('msgPager').innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = data.messages.map(m => renderMessage(m)).join('');
+    renderPager();
+  } catch (e) {
+    list.innerHTML = `<div class="loading" style="color:var(--red);">Error: ${e.message}</div>`;
+  }
+}
+
+function renderMessage(m) {
+  const attachments = safeJSON(m.attachments, []);
+  const reactions = safeJSON(m.reactions, []);
+  const images = attachments.filter(a => a.contentType?.startsWith('image/'));
+  const files = attachments.filter(a => !a.contentType?.startsWith('image/'));
+  const initial = (m.display_name || m.username || '?')[0].toUpperCase();
+
+  return `<div class="msg-row">
+    <div class="msg-avatar">${initial}</div>
+    <div class="msg-body">
+      <div class="msg-meta">
+        <span class="msg-author">${esc(m.display_name || m.username)}</span>
+        ${m.username !== m.display_name && m.display_name ? `<span class="mono" style="font-size:10px;color:var(--text3);">@${esc(m.username)}</span>` : ''}
+        <span class="msg-channel">#${esc(m.channel_name)}</span>
+        <span class="msg-time">${m.created_at?.slice(0,16).replace('T',' ')} UTC</span>
+        <span class="mono" style="font-size:9px;color:var(--muted);">${m.message_id}</span>
+      </div>
+      ${m.content ? `<div class="msg-content">${esc(m.content)}</div>` : ''}
+      ${images.length ? `<div class="msg-images">${images.map(a => `<img src="${a.url}" title="${esc(a.filename)}" onclick="window.open('${a.url}','_blank')">`).join('')}</div>` : ''}
+      ${files.length ? `<div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;">${files.map(a => `<a href="${a.url}" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--accent);background:var(--bg3);border:1px solid var(--border2);padding:2px 8px;border-radius:2px;">📎 ${esc(a.filename)}</a>`).join('')}</div>` : ''}
+      ${reactions.length ? `<div class="msg-reactions">${reactions.map(r => `<span class="reaction" title="${r.users?.map(u=>u.username).join(', ')}">${r.emoji} ${r.count}</span>`).join('')}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderPager() {
+  const total = state.msgTotal;
+  const page = state.msgPage;
+  const pages = Math.ceil(total / 50);
+  if (pages <= 1) { document.getElementById('msgPager').innerHTML = ''; return; }
+  document.getElementById('msgPager').innerHTML = `
+    <button onclick="changePage(-1)" ${page <= 1 ? 'disabled' : ''}>Previous</button>
+    <span>Page ${page} / ${pages}</span>
+    <button onclick="changePage(1)" ${page >= pages ? 'disabled' : ''}>Next</button>`;
+}
+
+function changePage(delta) {
+  state.msgPage += delta;
+  loadMessages();
+}
+
+// Message toolbar
+document.getElementById('msgSearchBtn').onclick = () => {
+  state.msgFilter.search = document.getElementById('msgSearch').value.trim();
+  state.msgFilter.channel_id = document.getElementById('msgChannel').value;
+  state.msgFilter.user_id = document.getElementById('msgUser').value;
+  state.msgPage = 1;
+  loadMessages();
+};
+document.getElementById('msgClearBtn').onclick = () => {
+  state.msgFilter = { search: '', channel_id: '', user_id: '' };
+  state.msgPage = 1;
+  document.getElementById('msgSearch').value = '';
+  document.getElementById('msgChannel').value = '';
+  document.getElementById('msgUser').value = '';
+  loadMessages();
+};
+document.getElementById('msgSearch').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('msgSearchBtn').click(); });
+
+// ─── AI Query ─────────────────────────────────────────────────────────────────
+const PRESETS_BASE = [
+  'Summarise the overall discussion',
+  'What are the most frequent topics?',
+  'Are there any arguments or conflicts?',
+  'Who seems to have the most influence?',
+  'Identify any plans or coordinated actions',
+  'What is the general sentiment?',
+];
+const PRESETS_USER = [
+  'What does this person think about politics?',
+  'What are their main interests?',
+  'Do they express any strong opinions?',
+  'What is their general attitude and tone?',
+  'Have they mentioned any specific events or places?',
+  'Are there any contradictions in what they say?',
+];
+
+document.getElementById('queryChannel').addEventListener('change', updateQueryScope);
+document.getElementById('queryUser').addEventListener('change', updateQueryScope);
+
+function updateQueryScope() {
+  const ch = document.getElementById('queryChannel').value;
+  const u = document.getElementById('queryUser').value;
+  const chName = document.getElementById('queryChannel').selectedOptions[0]?.text;
+  const uName = document.getElementById('queryUser').selectedOptions[0]?.text;
+  let scope = 'Full archive';
+  if (ch && u) scope = `#${chName} + ${uName}`;
+  else if (ch) scope = `Channel: #${chName}`;
+  else if (u) scope = `User: ${uName}`;
+  document.getElementById('queryScope').textContent = `Scope: ${scope}`;
+
+  const presets = u ? PRESETS_USER : PRESETS_BASE;
+  document.getElementById('presetList').innerHTML = presets.map(p =>
+    `<button class="pbtn" onclick="submitQuery('${p.replace(/'/g, "\\'")}') ">${p}</button>`
+  ).join('');
+}
+
+async function submitQuery(question) {
+  const q = question || document.getElementById('queryInput').value.trim();
+  if (!q) return;
+  document.getElementById('queryInput').value = '';
+
+  const ch = document.getElementById('queryChannel').value;
+  const u = document.getElementById('queryUser').value;
+
+  appendChat('user', q);
+
+  const loadingEl = document.createElement('div');
+  loadingEl.className = 'chat-msg ai';
+  loadingEl.innerHTML = `<div class="bubble"><div class="role">ARCHIVE.FLO</div><div class="text dot-pulse"><span></span><span></span><span></span></div></div>`;
+  document.getElementById('chatMsgs').appendChild(loadingEl);
+  scrollChat();
+
+  try {
+    const data = await api('/api/query', {
+      method: 'POST',
+      body: JSON.stringify({ question: q, channel_id: ch || undefined, user_id: u || undefined }),
+    });
+    loadingEl.remove();
+    appendChat('ai', data.response, data.context_messages);
+  } catch (e) {
+    loadingEl.remove();
+    appendChat('error', `Query failed: ${e.message}`);
+  }
+}
+
+function appendChat(role, text, meta) {
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  if (role === 'user') {
+    div.innerHTML = `<div class="bubble"><div class="role">ANALYST Ask</div><div class="text">${esc(text)}</div></div>`;
+  } else if (role === 'ai') {
+    div.innerHTML = `<div class="bubble"><div class="role"><span>Archive.FLO response</span>${meta ? `<span>${meta} MESSAGES CONSULTED</span>` : ''}</div><div class="text">${esc(text)}</div></div>`;
+  } else {
+    div.innerHTML = `<div class="bubble">⚠ ${esc(text)}</div>`;
+  }
+  document.getElementById('chatMsgs').appendChild(div);
+  scrollChat();
+}
+
+function scrollChat() {
+  const c = document.getElementById('chatMsgs');
+  c.scrollTop = c.scrollHeight;
+}
+
+document.getElementById('queryBtn').onclick = () => submitQuery();
+document.getElementById('queryInput').addEventListener('keydown', e => { if (e.key === 'Enter') submitQuery(); });
+
+// ─── Selects ──────────────────────────────────────────────────────────────────
+function populateChannelSelects(channels) {
+  const opts = channels.map(c => `<option value="${c.channel_id}">#${c.channel_name}</option>`).join('');
+  ['msgChannel', 'queryChannel'].forEach(id => {
+    const el = document.getElementById(id);
+    const cur = el.value;
+    el.innerHTML = `<option value="">All channels</option>${opts}`;
+    if (cur) el.value = cur;
+  });
+}
+
+function populateUserSelects(users) {
+  const opts = users.map(u => `<option value="${u.user_id}">${u.username}</option>`).join('');
+  ['msgUser', 'queryUser'].forEach(id => {
+    const el = document.getElementById(id);
+    const cur = el.value;
+    el.innerHTML = `<option value="">All users</option>${opts}`;
+    if (cur) el.value = cur;
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function initApp() {
+  renderOverview();
+  // Pre-load channels + users for selects
+  try {
+    const [channels, users] = await Promise.all([api('/api/channels'), api('/api/users')]);
+    state.channels = channels;
+    state.users = users;
+    populateChannelSelects(channels);
+    populateUserSelects(users);
+  } catch {}
+  updateQueryScope();
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function safeJSON(s, fallback) {
+  try { return typeof s === 'string' ? JSON.parse(s) : (s || fallback); } catch { return fallback; }
+}
+</script>
+</body>
+</html>
